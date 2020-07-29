@@ -1,0 +1,3 @@
+
+#define HELPERGL_EXTERN_GL_FUNC_IMPLEMENTATION
+#include <UI/GL.h>
