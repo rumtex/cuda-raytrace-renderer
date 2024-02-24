@@ -37,6 +37,7 @@ static void errorCallback( int error, const char* description )
 
 void initGL()
 {
+    glfwSwapInterval(0);
     printf("OpenGL version (%s): \n", glGetString(GL_VERSION));
 
     GL_CHECK( glClearColor( 0.212f, 0.271f, 0.31f, 1.0f ) );
@@ -89,10 +90,14 @@ GLFWwindow* initGLFW( const char* window_title, int width, int height, bool full
     return window;
 }
 
+// будет недостаточно
+// volatile bool initiated = false;
+//     if (!initiated)
+//     initiated = true;
 GLFWwindow* initUI(const char* window_title, int width, int height, bool fullscreen)
 {
-    GLFWwindow* window = initGLFW(window_title, width, height, fullscreen);
     initGL();
+    GLFWwindow* window = initGLFW(window_title, width, height, fullscreen);
     // initImGui( window );
     return window;
 }

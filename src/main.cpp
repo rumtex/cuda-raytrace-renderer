@@ -35,20 +35,22 @@ int main()
     geometry_t ray = {
         GEOOBJ_RAY,
         make_vec4(255.,0.,0.,255.),
-        .r = make_ray(make_vec3(1,1,1), normalize_vec3(make_vec3(1.,1.,5./30)))
+        .r = make_ray(make_vec3(100,100,0), normalize_vec3(make_vec3(1.,1.,5./30)))
     };
     add_geometry_gpu(world, ray);
 
     // unsigned width = 1920, height = 1080;
     unsigned width = 1024, height = 768;
-    window_t main_window(world, "Hey World", width, height);
+    window_t* main_window = new window_t(world, "Hey World", width, height);
 
     //loop
-    while (main_window.running())
+    while (main_window->running())
     {
         update_fps();
-        main_window.update_frame();
+        main_window->loop();
     }
+
+    delete main_window;
 
     clear_map_gpu(world);
     return 0;

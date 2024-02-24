@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.5)
 
-option(DEBUG_LOG   "Debug logs"                ON)
+option(DEBUG                    "Debug code"                    ON)
+option(CUDA_FRAME_FAST_SWITCH   "Disable map/unmap each frame"  OFF)
 
-SET(CMAKE_C_COMPILER /usr/bin/gcc-8)
-SET(CMAKE_CXX_COMPILER /usr/bin/g++-8)
-SET(CMAKE_CUDA_COMPILER /usr/local/cuda/bin/nvcc)
+set(OpenGL_GL_PREFERENCE LEGACY) # "GLVND" or "LEGACY"
+#set(CUDA_ARCHITECTURES...)
+
+#SET(CMAKE_C_COMPILER /usr/bin/gcc-9)
+#SET(CMAKE_CXX_COMPILER /usr/bin/g++-9)
+#SET(CMAKE_CUDA_COMPILER /opt/cuda/bin/nvcc)
 
 # Set the project name
 set(PROJECT cuda-raytracer)
@@ -54,7 +58,7 @@ target_include_directories(${PROJECT}
     PRIVATE
         ${PROJECT_SOURCE_DIR}/src
         ${PROJECT_SOURCE_DIR}/lib
-        /usr/local/cuda/targets/x86_64-linux/include
+        /opt/cuda/include
 )
 
 # We need to explicitly state that we need all CUDA files to be built with -dc as the member functions could be called by
@@ -63,6 +67,11 @@ set_target_properties(${PROJECT}
     PROPERTIES CUDA_SEPARABLE_COMPILATION ON
 )
 
-if (DEBUG_LOG)
+if (DEBUG)
     ADD_DEFINITIONS(-DDEBUG)
 endif()
+
+if (CUDA_FRAME_FAST_SWITCH)
+    add_definitions(-DCUDA_FRAME_FAST_SWITCH)
+endif()
+

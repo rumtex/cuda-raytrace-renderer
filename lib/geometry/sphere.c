@@ -13,12 +13,12 @@ CROSS_COMPILING_OPTS vec3 sphere_normal(sphere_t sphere, vec3 vec)
 
 CROSS_COMPILING_OPTS fract_t ray_intersect_sphere_at(ray_t r, sphere_t s)
 {
-    // расстояние от центра сферы до ближайшей точки луча (с) Ярошевич
+    // расстояние начала луча до перпендикуляра к центру сферы (с) Ярошевич
     fract_t cdist = -sqsum3(diff_vec3_vec3(r.position, s.position), r.direction);
     vec3 q = sum_vec3_vec3(r.position, mul_vec3_scalar(r.direction, cdist));
     vec3 b = diff_vec3_vec3(q, s.position);
     fract_t bSq = sqsum3(b, b);
-    fract_t rSq = s.radius*s.radius;
+    fract_t rSq = s.radius*s.radius; // TODO можно дежать в производных сферы
     if (bSq > rSq) return NO_INTERSECTION;
 
     fract_t a = sqrt(rSq - bSq);

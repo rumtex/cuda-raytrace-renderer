@@ -5,8 +5,23 @@
 
 // #define SCALED_TO_RESOLUTION
 
+// void initImGui( GLFWwindow* window )
+// {
+//     IMGUI_CHECKVERSION();
+//     ImGui::CreateContext();
+//     ImGuiIO& io = ImGui::GetIO();
+//     (void)io;
+
+//     ImGui_ImplGlfw_InitForOpenGL( window, false );
+//     ImGui_ImplOpenGL3_Init();
+//     ImGui::StyleColorsDark();
+//     io.Fonts->AddFontDefault();
+
+//     ImGui::GetStyle().WindowBorderSize = 0.0f;
+// }
+
 unsigned window_id_it = 0;
-window_t::window_t(map_t* world, char* title, unsigned resolution_width, unsigned resolution_height) :
+window_t::window_t(map_t* world, char* title, unsigned resolution_width = 0, unsigned resolution_height = 0) :
     w_id(window_id_it++),
     w_width(resolution_width),
     w_height(resolution_height),
@@ -19,8 +34,24 @@ window_t::window_t(map_t* world, char* title, unsigned resolution_width, unsigne
     w_world(world)
     {
         glfwGetWindowPos(gl_window, &w_pos_x, &w_pos_y);
-        w_output_buffer.setStream( 0 );
+        w_output_buffer.setStream( 0u );
         init_callbacks();
+
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode * mode = glfwGetVideoMode(monitor);
+        glfwSetWindowAspectRatio(gl_window,mode->width, mode->height); // 16:9
+// glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+// glfwSetWindowAttrib(gl_window, GLFW_FLOATING, GLFW_TRUE);
+// glfwSetWindowAttrib(gl_window, GLFW_FLOATING, GLFW_FALSE);
+// glfwSetWindowAttrib(gl_window, GLFW_RESIZABLE, GLFW_FALSE);
+// glfwSetWindowOpacity(gl_window, 0.5f);
+        glfwWindowHint(GLFW_RED_BITS, mode->redBits);
+        glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
+        glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
+        glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
+        glfwSetWindowSize(gl_window, mode->width/2, mode->height/2);
+        // glViewport(0, 0, mode->width/2, mode->height/2);
+        // update_resolution(mode->width/2, mode->height/2);
     }
 
 window_t::~window_t()
@@ -88,17 +119,25 @@ void window_t::resize()
 #endif
 }
 
-void window_t::update_pos() {
+void window_t::update_pos()
+{
     glfwGetWindowPos(gl_window, &w_pos_x, &w_pos_y);
 }
 
 #include "render/CUDA/cuda_kernel.cuh"
-void window_t::update_frame() {
+void window_t::loop() {
+    glfwPollEvents();
     update_controls();
 
-    cuda_make_frame(w_resolution_width, w_resolution_height, w_output_buffer.getDevicePointer(), w_world, w_cam);
+#ifndef CUDA_FRAME_FAST_SWITCH
+    w_output_buffer.map();
+#endif
 
-    CUDA_SYNC_CHECK();
+#ifndef CUDA_FRAME_FAST_SWITCH
+    w_output_buffer.unmap();
+#endif
+
+    cuda_make_frame(w_resolution_width, w_resolution_height, w_output_buffer.getDevicePointer(), w_world, w_cam);
 
     gl_pbo_env.render(
         w_resolution_width,
@@ -108,7 +147,7 @@ void window_t::update_frame() {
         w_output_buffer.getPBO()
     );
 
-    glfwPollEvents();
+    CUDA_SYNC_CHECK();
     glfwSwapBuffers( gl_window );
 }
 

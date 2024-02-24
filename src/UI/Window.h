@@ -48,7 +48,7 @@ public:
     void set_camera_ang(int dx, int dy);
     void update_controls();
 
-    void update_frame();
+    void loop();
 
     unsigned width() {return w_width;}
     unsigned height() {return w_height;}

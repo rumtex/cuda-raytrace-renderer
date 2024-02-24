@@ -146,5 +146,5 @@ void cuda_make_frame(unsigned width, unsigned height, uchar4* gpu_frame_ptr, map
     // cudaMemcpyAsync(fb->gpu_frame_ptr, fb->buf, fb->buf_size, cudaMemcpyHostToDevice, 0);
     simple_vbo_kernel<<<dim3(width/BLOCK_SIZE + 1, height/BLOCK_SIZE + 1), dim3(BLOCK_SIZE, BLOCK_SIZE), 1, 0>>>(width, height, gpu_frame_ptr, map, cam);
     // cudaMemcpyAsync(fb->gpu_frame_ptr, fb->buf, fb->buf_size, cudaMemcpyDeviceToHost, 0);
-    // cudaStreamSynchronize(0);
+    cudaStreamSynchronize(0);
 }

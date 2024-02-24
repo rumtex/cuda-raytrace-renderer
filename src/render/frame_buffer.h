@@ -58,7 +58,7 @@ public:
     uchar4*         getDevicePointer();
 
 private:
-    void makeCurrent() { CUDA_CHECK( cudaSetDevice( m_device_idx ) ); }
+    void makeCurrent() { /*CUDA_CHECK( cudaSetDevice( m_device_idx ) );*/ }
 
     unsigned                    m_width             = 0u;
     unsigned                    m_height            = 0u;

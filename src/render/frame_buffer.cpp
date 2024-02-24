@@ -51,7 +51,6 @@ frame_buffer_t::~frame_buffer_t()
     {
         {
             makeCurrent();
-            unmap();
         }
 
         if( m_pbo != 0u )
@@ -76,7 +75,9 @@ void frame_buffer_t::resize( unsigned width, unsigned height )
 
     {
         makeCurrent();
+#ifdef CUDA_FRAME_FAST_SWITCH
         if (m_pbo != 0x0) unmap();
+#endif
 
         // GL buffer gets resized below
         GL_CHECK( glGenBuffers( 1, &m_pbo ) );
@@ -89,7 +90,10 @@ void frame_buffer_t::resize( unsigned width, unsigned height )
                     m_pbo,
                     cudaGraphicsMapFlagsWriteDiscard
                     ) );
+
+#ifdef CUDA_FRAME_FAST_SWITCH
         map();
+#endif
     }
 }
 
